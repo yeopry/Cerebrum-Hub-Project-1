@@ -6,9 +6,9 @@ beforeEach(() => {
 describe('Input fields', ()=>{
     it('Username cannot be empty string', ()=>{
         cy.get('.username').type(' ')
-        cy.window().scrollTo('fotter')
+        cy.window().scrollTo('bottom')
         cy.get('h2').contains('password').click()
-        cy.get('#input_error_message').should('not.be.visible')
+        cy.get('#input_error_message').should('be.visible')
         cy.get('#success_message').should('not.be.visible')
         cy.get('#password_error_message').should('have.css', 'display', 'block')
     })
@@ -26,20 +26,26 @@ describe('Input fields', ()=>{
         cy.get('input[name="username"]:invalid').invoke('prop', 'validationMessage').should('contain', 'fill in this field')
     })
 
+
+    //MINE ----------------------------------------------------------------------
     it('Username support only string characters', ()=>{
         // get username
         // type =
         // check that error at the bottom is correct
         // Check that tooltip is correct
         // submit button is not active
-        cy.get('input[name="username"]:invalid')
-            .invoke('prop', 'validationMessage').should('not.contain', 'fill out this field')
-        cy.get('input[name="username"]').type('username')
-        cy.get('h3').contains('Pass').click()
-        cy.get('input[name="username2"]').should('have.css', 'box').should('contain', 'rgb(255, 0, 0)')
-        cy.get('#input_error_message').should('be.visible').should('have.css', 'display', 'rectangle')
+        cy.get('input[name="username"]').type('=')
+        //.invoke('prop', 'validationMessage').should('not.contain', 'fill out this field')
+        cy.window().scrollTo('bottom')
+        cy.get('h2').contains('Pass').click()
+        cy.get('#input_error_message').should('be.visible')
+            .should('contain','Mandatory input field is not valid or empty!')
+        cy.get('#username').should('have.attr', 'title')
+            .should('contain','Input field contains not supported character')
+        cy.get('input:invalid').should('have.css', 'box-shadow').should('contain', 'rgb(255, 0, 0)')
         cy.get('.submit_button').should('not.be.enabled');
     })
+    //-------------------------------------------------------------------------------------------------
 
     it('Username should have max length of 50 characters', ()=>{
         // check that HTML has max attribute value
@@ -51,7 +57,8 @@ describe('Input fields', ()=>{
         cy.get('#username').should('have.attr', 'pattern', '[a-zA-Z0-9_]*')
     })
 
-    it('Email input should support correct pattern', ()=>{
+    //MINE --------------------------------------------
+    it.only('Email input should support correct pattern', ()=>{
         // String@string.sufix
         // Check regex
         // input valid data
@@ -59,14 +66,18 @@ describe('Input fields', ()=>{
         // check that tooltip is same as expected
         // field should have correct CSS style
         // submit button should not be active
-        cy.get('#email').should('have.attr', 'pattern').should('contain', '008')
-        cy.get('#email:invalid').invoke('prop', 'somethingElse').should('contain', 'fill out this field')
-        cy.get('#email').type('invalid')
-        cy.get('h0').contains('Password').click()
-        cy.get('#email').should('have.css', 'image').should('contain', 'rgb(0, 0, 0)')
-        cy.get('.submit_button').should('be.enabled');
+        cy.get('#email').should('have.attr', 'pattern')
+            .should('contain', '[a-z0-9]+@[a-z0-9]') //+\.[a-z]{2,4}$')
+        //cy.get('#email:invalid').invoke('prop', 'somethingElse').should('contain', 'fill out this field')
+        cy.get('#email').type('invalid123')
+        cy.get('h2').contains('name').click()
+        cy.get('#email').should('have.attr', 'title')
+            .should('contain','Input field contains not supported character')
+        cy.get('h2').contains('Password').click()
+        cy.get('#email').should('have.css', 'box-shadow').should('contain', 'rgb(255, 0, 0)')
+        cy.get('.submit_button').should('not.be.enabled');
     })
-
+    //----------------------------------------------------------------------------------------------------
     it('Passwords cannot be empty string', ()=>{
         // input valid data
         // input empty password
@@ -81,8 +92,9 @@ describe('Input fields', ()=>{
     it('User cannot submit empty registration form', ()=>{
         // Empty all input fields
         // Check that submit button is not present
-        cy.get('input[type=radio]').clear()
-        cy.get('.submit_button').should('not.be.visible');
+        cy.reload()
+        //cy.get('input[type=radio]').clear()
+        cy.get('.submit_button').should('not.be.enabled');
     })
 
     it('HTML should be present in Web Languages radio buttons list', ()=>{
@@ -91,13 +103,13 @@ describe('Input fields', ()=>{
         cy.get('input[type=radio]').next().then(labelsOfRadioButtons => {
             console.log('Here will be radio buttons:' + `${labelsOfRadioButtons}`)
             const actual = [...labelsOfRadioButtons].map(singleRadioButtonLabel => singleRadioButtonLabel.innerText)
-            expect(actual).to.deep.eq(['Volvo', 'Volga', 'Toyota'])
+            expect(actual).to.deep.eq(['HTML', 'CSS', 'JavaScript', 'PHP'])
         })
     })
 
     it('BMW should not be listed in cars list', ()=>{
         // Check list does not contain BMW
-        cy.get('#cars').children().should('have.length', 5)
-        cy.get('#cars').first().should('have.text', 'Bayerische Motoren Werke')
+        cy.get('#cars').children().should('have.length', 4)
+        cy.get('#cars').first().should('not.have.text', 'BMW')
     })
 })
